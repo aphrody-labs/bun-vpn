@@ -1,0 +1,327 @@
+[workspace]
+resolver = "3"
+exclude = ["vendor"]
+members = ["plugin", "bun_vpn"]
+
+[workspace.package]
+version = "1.4.7"
+edition = "2024"
+repository = "https://github.com/aphrody-labs/bun-vpn"
+
+[workspace.dependencies]
+"log" = "0.4.34"
+"tokio" = { "version" = "1.53.1", "features" = ["process","rt-multi-thread","macros","time","signal","sync","fs","io-util","full"] }
+
+[workspace.lints.rust]
+# Every rustc warning is an error. Individual lints below can override this
+# back to "warn" (their priority 0 beats the group's -1) where a warning level
+# is intentional.
+warnings = { level = "deny", priority = -1 }
+# `bun_asan` / `bun_debug` / `socket_fault_injection` are set via RUSTFLAGS
+# (`--cfg=...` + `--check-cfg=cfg(...)`) by scripts/build/rust.ts; register
+# them here so a plain `cargo build` / `cargo check` (without those flags)
+# doesn't warn.
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(bun_asan)', 'cfg(bun_debug)', 'cfg(socket_fault_injection)', 'cfg(bun_disallow_code_generation_from_strings)', 'cfg(bun_sema_mimalloc)'] }
+# link.exe unconditionally prints "Creating library X.dll.lib and object
+# X.dll.exp" to stdout when linking each proc-macro DLL on Windows hosts;
+# there is no linker flag to suppress it. The lint already exempts itself
+# from `-D warnings`, so this only silences the noise.
+linker_messages = "allow"
+dead_code = "deny"
+# Every crate in this workspace is an internal implementation detail of one
+# binary, so `pub` is a claim that *another crate* imports the item. If it
+# doesn't, write `pub(crate)` — that keeps the item under `dead_code` analysis
+# instead of being exempted as an external API root. Macro-generated items that
+# must stay `pub` carry `#[allow(unreachable_pub)]` at the expansion site.
+unreachable_pub = "deny"
+unused_imports = "deny"
+unused_variables = "deny"
+unused_mut = "deny"
+unused_assignments = "deny"
+unused_macros = "deny"
+unreachable_code = "deny"
+unreachable_patterns = "deny"
+
+[workspace.lints.clippy]
+# == provenance-safe pointer casts ==
+# Prefer `.cast::<T>()` / `.cast_const()` / `.cast_mut()` / `ptr::from_ref` /
+# `ptr::from_mut` over `as *const T` / `as *mut T`. The method forms cannot
+# accidentally change mutability or perform a ref→raw coercion in one step,
+# and they preserve provenance under Strict Provenance.
+ptr_as_ptr = "deny"
+ptr_cast_constness = "deny"
+ref_as_ptr = "deny"
+borrow_as_ptr = "deny"
+
+# == soundness / leak prevention ==
+undocumented_unsafe_blocks = "deny"
+not_unsafe_ptr_arg_deref = "deny"
+mem_forget = "deny"
+cast_ptr_alignment = "deny"
+transmute_ptr_to_ptr = "deny"
+as_ptr_cast_mut = "deny"
+drop_non_drop = "deny"
+uninit_vec = "deny"
+
+# == performance ==
+redundant_clone = "deny"
+unnecessary_to_owned = "deny"
+needless_collect = "deny"
+or_fun_call = "deny"
+assigning_clones = "deny"
+implicit_clone = "deny"
+iter_overeager_cloned = "deny"
+map_clone = "deny"
+trivially_copy_pass_by_ref = "deny"
+large_types_passed_by_value = "deny"
+large_enum_variant = "deny"
+large_stack_frames = "deny"
+vec_init_then_push = "deny"
+format_collect = "deny"
+manual_memcpy = "deny"
+needless_pass_by_value = "deny"
+
+# == clarity / api hygiene ==
+unnecessary_unwrap = "deny"
+derive_partial_eq_without_eq = "deny"
+derivable_impls = "deny"
+clone_on_ref_ptr = "deny"
+if_same_then_else = "deny"
+todo = "deny"
+unimplemented = "deny"
+dbg_macro = "deny"
+clone_on_copy = "deny"
+useless_conversion = "deny"
+# vec_box / boxed_local: legit patterns are `#[expect]`-suppressed at the site
+# with a one-line "why the box is load-bearing" comment (intrusive-list address
+# stability, JsClass finalizer thunk contract). Anything new must justify itself.
+vec_box = "deny"
+boxed_local = "deny"
+arc_with_non_send_sync = "deny"
+manual_swap = "deny"
+mem_replace_option_with_none = "deny"
+redundant_locals = "deny"
+manual_c_str_literals = "deny"
+precedence = "deny"
+implicit_saturating_sub = "deny"
+ptr_eq = "deny"
+
+# == disallowed-* (configured in clippy.toml) ==
+disallowed_methods = "deny"
+disallowed_types = "deny"
+disallowed_macros = "deny"
+
+# == explicitly allowed (Zig-port style; intentional) ==
+collapsible_if = "allow"
+collapsible_else_if = "allow"
+collapsible_match = "allow"
+too_many_arguments = "allow"
+type_complexity = "allow"
+len_zero = "allow"
+len_without_is_empty = "allow"
+needless_return = "allow"
+module_inception = "allow"
+missing_safety_doc = "allow"
+let_unit_value = "allow"
+needless_update = "allow"
+explicit_auto_deref = "allow"
+doc_lazy_continuation = "allow"
+doc_overindented_list_items = "allow"
+enum_variant_names = "allow"
+upper_case_acronyms = "allow"
+wrong_self_convention = "allow"
+should_implement_trait = "allow"
+new_without_default = "allow"
+self_named_constructors = "allow"  # Zig-port `Type::init()` constructor convention
+single_match = "allow"
+manual_range_contains = "allow"
+needless_lifetimes = "allow"
+needless_range_loop = "allow"
+while_let_loop = "allow"
+while_let_on_iterator = "allow"
+blocks_in_conditions = "allow"
+diverging_sub_expression = "allow"
+declare_interior_mutable_const = "allow"
+empty_line_after_doc_comments = "allow"
+empty_docs = "allow"
+excessive_precision = "allow"
+unreadable_literal = "allow"
+approx_constant = "allow"
+result_unit_err = "allow"
+only_used_in_recursion = "allow"
+# `as u32` etc. is identity on some libc targets, required widen on others
+unnecessary_cast = "allow"
+new_ret_no_self = "allow"
+map_identity = "allow"
+
+# Profiles copied from aphrody-labs/bun Cargo.toml: scripts/build/plugins.ts builds with --profile plugin (release) or dev.
+[profile.release]
+lto = "off"
+codegen-units = 1
+debug = "line-tables-only"
+strip = "none"
+panic = "abort"
+
+[profile.plugin]
+inherits = "release"
+debug = false
+strip = true
+
+[profile.dev]
+panic = "abort"
+split-debuginfo = "unpacked"
+
+# zlib-rs is absorbed in the Bun checkout's src/zlib_rs, as in the Bun workspace.
+[patch.crates-io]
+zlib-rs = { path = "../../src/zlib_rs" }
+
+[profile.release.package.gotatun]
+opt-level = "z"
+
+[profile.release.package.h3]
+opt-level = "z"
+
+[profile.release.package.h3-datagram]
+opt-level = "z"
+
+[profile.release.package.h3-quinn]
+opt-level = "z"
+
+[profile.release.package.hickory-net]
+opt-level = "z"
+
+[profile.release.package.hickory-proto]
+opt-level = "z"
+
+[profile.release.package.hickory-resolver]
+opt-level = "z"
+
+[profile.release.package.mullvad-api]
+opt-level = "z"
+
+[profile.release.package.mullvad-api-constants]
+opt-level = "z"
+
+[profile.release.package.mullvad-daemon]
+opt-level = "z"
+
+[profile.release.package.mullvad-daemon-relay-selector]
+opt-level = "z"
+
+[profile.release.package.mullvad-encrypted-dns-proxy]
+opt-level = "z"
+
+[profile.release.package.mullvad-fs]
+opt-level = "z"
+
+[profile.release.package.mullvad-leak-checker]
+opt-level = "z"
+
+[profile.release.package.mullvad-logging]
+opt-level = "z"
+
+[profile.release.package.mullvad-management-interface]
+opt-level = "z"
+
+[profile.release.package.mullvad-masque-proxy]
+opt-level = "z"
+
+[profile.release.package.mullvad-paths]
+opt-level = "z"
+
+[profile.release.package.mullvad-relay-selector]
+opt-level = "z"
+
+[profile.release.package.mullvad-tls-client]
+opt-level = "z"
+
+[profile.release.package.mullvad-types]
+opt-level = "z"
+
+[profile.release.package.mullvad-update]
+opt-level = "z"
+
+[profile.release.package.mullvad-version]
+opt-level = "z"
+
+[profile.release.package.octocrab]
+opt-level = "z"
+
+[profile.release.package.quinn]
+opt-level = "z"
+
+[profile.release.package.quinn-proto]
+opt-level = "z"
+
+[profile.release.package.quinn-udp]
+opt-level = "z"
+
+[profile.release.package.talpid-core]
+opt-level = "z"
+
+[profile.release.package.talpid-dns]
+opt-level = "z"
+
+[profile.release.package.talpid-error]
+opt-level = "z"
+
+[profile.release.package.talpid-future]
+opt-level = "z"
+
+[profile.release.package.talpid-logging]
+opt-level = "z"
+
+[profile.release.package.talpid-net]
+opt-level = "z"
+
+[profile.release.package.talpid-netstack]
+opt-level = "z"
+
+[profile.release.package.talpid-platform-metadata]
+opt-level = "z"
+
+[profile.release.package.talpid-routing]
+opt-level = "z"
+
+[profile.release.package.talpid-time]
+opt-level = "z"
+
+[profile.release.package.talpid-tunnel]
+opt-level = "z"
+
+[profile.release.package.talpid-tunnel-config-client]
+opt-level = "z"
+
+[profile.release.package.talpid-types]
+opt-level = "z"
+
+[profile.release.package.talpid-windows]
+opt-level = "z"
+
+[profile.release.package.talpid-wireguard]
+opt-level = "z"
+
+[profile.release.package.tunnel-obfuscation]
+opt-level = "z"
+
+[profile.release.package.bun_vpn]
+opt-level = "z"
+
+[profile.release.package.hyper]
+opt-level = "z"
+
+[profile.release.package.hyper-util]
+opt-level = "z"
+
+[profile.release.package.h2]
+opt-level = "z"
+
+[profile.release.package.reqwest]
+opt-level = "z"
+
+[profile.release.package.tonic]
+opt-level = "z"
+
+[profile.release.package.tower]
+opt-level = "z"
+
