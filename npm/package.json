@@ -1,0 +1,14 @@
+{
+  "name": "bun-vpn",
+  "version": "1.4.7",
+  "description": "Mullvad VPN client and embedded daemon for Bun: a Rust binary driven with Bun.spawn. Runs beside unmodified upstream Bun.",
+  "license": "GPL-3.0-or-later",
+  "repository": "github:aphrody-labs/bun-vpn",
+  "type": "module",
+  "private": true,
+  "bin": { "bun-vpn": "bin/bun-vpn.js" },
+  "main": "index.js",
+  "types": "index.d.ts",
+  "files": ["bin", "index.js", "index.d.ts"],
+  "engines": { "bun": ">=1.3.0" }
+}

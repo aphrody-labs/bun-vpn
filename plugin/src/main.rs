@@ -1,4 +1,4 @@
-//! `bun-vpn <vpn arguments>`: the Mullvad client and daemon, spawned by `bun vpn`.
+//! `bun-vpn <vpn arguments>`: the Mullvad client and daemon, spawned by Bun or run directly.
 
 use std::process::ExitCode;
 

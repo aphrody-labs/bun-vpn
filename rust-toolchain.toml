@@ -1,0 +1,3 @@
+[toolchain]
+# Same channel as vendor/mullvad/rust-toolchain.toml; the build needs no nightly features.
+channel = "1.97.1"

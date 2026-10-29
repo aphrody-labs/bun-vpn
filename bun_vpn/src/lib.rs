@@ -108,7 +108,7 @@ impl VpnClient {
 /// Mullvad's management interface has no Android client.
 #[cfg(target_os = "android")]
 pub fn cli(_args: &[String]) -> i32 {
-    write_stderr(b"bun vpn: not supported on Android\n");
+    write_stderr(b"bun-vpn: not supported on Android\n");
     1
 }
 
@@ -130,7 +130,7 @@ pub fn cli(args: &[String]) -> i32 {
         Ok(runtime) => runtime,
         Err(error) => {
             write_stderr(
-                format!("bun vpn: failed to start native async runtime: {error}\n").as_bytes(),
+                format!("bun-vpn: failed to start native async runtime: {error}\n").as_bytes(),
             );
             return 1;
         }
@@ -139,7 +139,7 @@ pub fn cli(args: &[String]) -> i32 {
         return match runtime.block_on(run_embedded_daemon()) {
             Ok(()) => 0,
             Err(error) => {
-                write_stderr(format!("bun vpn: {error}\n").as_bytes());
+                write_stderr(format!("bun-vpn: {error}\n").as_bytes());
                 1
             }
         };
@@ -153,7 +153,7 @@ pub fn cli(args: &[String]) -> i32 {
         let account = match read {
             Ok(account) => account,
             Err(error) => {
-                write_stderr(format!("bun vpn: {error}\n").as_bytes());
+                write_stderr(format!("bun-vpn: {error}\n").as_bytes());
                 return 2;
             }
         };
@@ -165,7 +165,7 @@ pub fn cli(args: &[String]) -> i32 {
                 0
             }
             Err(_) => {
-                write_stderr(b"bun vpn: account login failed\n");
+                write_stderr(b"bun-vpn: account login failed\n");
                 1
             }
         };
@@ -190,7 +190,7 @@ pub fn cli(args: &[String]) -> i32 {
             0
         }
         Err(error) => {
-            write_stderr(format!("bun vpn: {error}\n").as_bytes());
+            write_stderr(format!("bun-vpn: {error}\n").as_bytes());
             1
         }
     }

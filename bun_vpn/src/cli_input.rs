@@ -1,7 +1,7 @@
 use std::io::Read;
 
 pub(crate) const USAGE: &str =
-    "usage: bun vpn <daemon|status|connect|disconnect|login --stdin|login --from-env NAME>";
+    "usage: bun-vpn <daemon|status|connect|disconnect|login --stdin|login --from-env NAME>";
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum Command {
